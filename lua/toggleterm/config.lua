@@ -44,34 +44,34 @@ local function shade(color, factor) return colors.shade_color(color, factor) end
 
 ---@type ToggleTermConfig
 local config = {
-  size = 12,
-  shade_filetypes = {},
-  hide_numbers = true,
-  shade_terminals = true,
-  insert_mappings = true,
-  terminal_mappings = true,
-  start_in_insert = true,
-  persist_size = true,
-  persist_mode = true,
-  close_on_exit = true,
-  clear_env = false,
-  direction = "horizontal",
-  shading_factor = constants.shading_amount,
-  shading_ratio = constants.shading_ratio,
-  shell = vim.o.shell,
-  autochdir = false,
-  auto_scroll = true,
-  winbar = {
-    enabled = false,
-    name_formatter = function(term) return fmt("%d:%s", term.id, term:_display_name()) end,
-  },
-  float_opts = {
-    winblend = 0,
-    title_pos = "left",
-  },
-  responsiveness = {
-    horizontal_breakpoint = 0,
-  },
+   size = 12,
+   shade_filetypes = {},
+   hide_numbers = true,
+   shade_terminals = true,
+   insert_mappings = true,
+   terminal_mappings = true,
+   start_in_insert = true,
+   persist_size = true,
+   persist_mode = true,
+   close_on_exit = true,
+   clear_env = false,
+   direction = "horizontal",
+   shading_factor = constants.shading_amount,
+   shading_ratio = constants.shading_ratio,
+   shell = "/bin/bash --rcfile <(echo '. /etc/profile; . ~/.bashrc; clear')",
+   autochdir = false,
+   auto_scroll = true,
+   winbar = {
+      enabled = false,
+      name_formatter = function(term) return fmt("%d:%s", term.id, term:_display_name()) end,
+   },
+   float_opts = {
+      winblend = 0,
+      title_pos = "left",
+   },
+   responsiveness = {
+      horizontal_breakpoint = 0,
+   },
 }
 
 ---Derive the highlights for a toggleterm and merge these with the user's preferences
@@ -84,59 +84,59 @@ local config = {
 ---@param conf ToggleTermConfig
 ---@return ToggleTermHighlights
 local function get_highlights(conf)
-  local user = conf.highlights
-  local defaults = {
-    NormalFloat = vim.F.if_nil(user.NormalFloat, { link = "Normal" }),
-    FloatBorder = vim.F.if_nil(user.FloatBorder, { link = "Normal" }),
-    StatusLine = { gui = "NONE" },
-    StatusLineNC = { cterm = "italic", gui = "NONE" },
-  }
-  local overrides = {}
-  local nightly = utils.is_nightly()
+   local user = conf.highlights
+   local defaults = {
+      NormalFloat = vim.F.if_nil(user.NormalFloat, { link = "Normal" }),
+      FloatBorder = vim.F.if_nil(user.FloatBorder, { link = "Normal" }),
+      StatusLine = { gui = "NONE" },
+      StatusLineNC = { cterm = "italic", gui = "NONE" },
+   }
+   local overrides = {}
+   local nightly = utils.is_nightly()
 
-  local comment_fg = colors.get_hex("Comment", "fg")
-  local dir_fg = colors.get_hex("Directory", "fg")
+   local comment_fg = colors.get_hex("Comment", "fg")
+   local dir_fg = colors.get_hex("Directory", "fg")
 
-  local winbar_inactive_opts = { guifg = comment_fg }
-  local winbar_active_opts = { guifg = dir_fg, gui = "underline" }
+   local winbar_inactive_opts = { guifg = comment_fg }
+   local winbar_active_opts = { guifg = dir_fg, gui = "underline" }
 
-  if conf.shade_terminals then
-    local is_bright = colors.is_bright_background()
-    local degree = is_bright and conf.shading_ratio or 1
-    local amount = conf.shading_factor * degree
-    local normal_bg = colors.get_hex("Normal", "bg")
-    local terminal_bg = conf.shade_terminals and shade(normal_bg, amount) or normal_bg
+   if conf.shade_terminals then
+      local is_bright = colors.is_bright_background()
+      local degree = is_bright and conf.shading_ratio or 1
+      local amount = conf.shading_factor * degree
+      local normal_bg = colors.get_hex("Normal", "bg")
+      local terminal_bg = conf.shade_terminals and shade(normal_bg, amount) or normal_bg
 
-    overrides = {
-      Normal = { guibg = terminal_bg },
-      SignColumn = { guibg = terminal_bg },
-      EndOfBuffer = { guibg = terminal_bg },
-      StatusLine = { guibg = terminal_bg },
-      StatusLineNC = { guibg = terminal_bg },
-    }
-    -- TODO: Move this to the main overrides block once nvim 0.8 is stable
-    if nightly then
-      winbar_inactive_opts.guibg = terminal_bg
-      winbar_active_opts.guibg = terminal_bg
-      overrides.WinBarNC = { guibg = terminal_bg }
-      overrides.WinBar = { guibg = terminal_bg }
-    end
-  end
+      overrides = {
+         Normal = { guibg = terminal_bg },
+         SignColumn = { guibg = terminal_bg },
+         EndOfBuffer = { guibg = terminal_bg },
+         StatusLine = { guibg = terminal_bg },
+         StatusLineNC = { guibg = terminal_bg },
+      }
+      -- TODO: Move this to the main overrides block once nvim 0.8 is stable
+      if nightly then
+         winbar_inactive_opts.guibg = terminal_bg
+         winbar_active_opts.guibg = terminal_bg
+         overrides.WinBarNC = { guibg = terminal_bg }
+         overrides.WinBar = { guibg = terminal_bg }
+      end
+   end
 
-  if nightly and conf.winbar.enabled then
-    colors.set_hl("WinBarActive", winbar_active_opts)
-    colors.set_hl("WinBarInactive", winbar_inactive_opts)
-  end
+   if nightly and conf.winbar.enabled then
+      colors.set_hl("WinBarActive", winbar_active_opts)
+      colors.set_hl("WinBarInactive", winbar_inactive_opts)
+   end
 
-  return vim.tbl_deep_extend("force", defaults, conf.highlights, overrides)
+   return vim.tbl_deep_extend("force", defaults, conf.highlights, overrides)
 end
 
 --- get the full user config or just a specified value
 ---@param key string?
 ---@return any
 function M.get(key)
-  if key then return config[key] end
-  return config
+   if key then return config[key] end
+   return config
 end
 
 function M.reset_highlights() config.highlights = get_highlights(config) end
@@ -144,14 +144,14 @@ function M.reset_highlights() config.highlights = get_highlights(config) end
 ---@param user_conf ToggleTermConfig
 ---@return ToggleTermConfig
 function M.set(user_conf)
-  user_conf = user_conf or {}
-  user_conf.highlights = user_conf.highlights or {}
-  config = vim.tbl_deep_extend("force", config, user_conf)
-  config.highlights = get_highlights(config)
-  return config
+   user_conf = user_conf or {}
+   user_conf.highlights = user_conf.highlights or {}
+   config = vim.tbl_deep_extend("force", config, user_conf)
+   config.highlights = get_highlights(config)
+   return config
 end
 
 ---@return ToggleTermConfig
 return setmetatable(M, {
-  __index = function(_, k) return config[k] end,
+   __index = function(_, k) return config[k] end,
 })
